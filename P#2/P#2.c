@@ -11,15 +11,14 @@ int main(void)
     int input;
     int life = 10;
 
-    printf("%d\n", key);
-    while(life >= 0) {
+    while(life > 0) {
         printf("Put your guess: ");
         scanf(" %d", &input);
-        if(key == input) {// 정답 조건
-            if(life == 10) {
+        if(key == input) { // 정답 조건
+            if(life == 10) { // One-shot 조건
                 printf("Feeling lucky! the number was %d\n", key);
                 return 0;
-            } else if(key == 0 || key == 1000) {
+            } else if(key == 0 || key == 1000) { // MIN / MAX 조건
                 printf("You got the extreme number! the number was %d\n", key);
                 return 0;
             } else {
@@ -33,13 +32,12 @@ int main(void)
         else if(input < key) {
             printf("The key is higher than %d\n", input);
         }
-        if(key % input == 0) {
+        if(key % input == 0) { // Multiple
             printf("%d is a multiple of the key\n", input);
         }
         life--;
     }
     printf("Computer won! the number was %d\n", key);
     /* *********************** */  
-
     return 0;
 }
