@@ -5,7 +5,8 @@
 int main(void)
 {
     srand((unsigned)time(0));
-    int key = rand()*rand()%1001;   
+    unsigned int r_int = rand()*rand();
+    unsigned int key = r_int % 1001;
 
     /* Fill up with your codes */
     int input;
@@ -22,7 +23,7 @@ int main(void)
                 printf("You got the extreme number! the number was %d\n", key);
                 return 0;
             } else {
-                printf("Player won! the nuber was %d\n", key);
+                printf("Player won! the number was %d\n", key);
                 return 0;
             }
         }
@@ -33,7 +34,7 @@ int main(void)
             printf("The key is higher than %d\n", input);
         }
         if(key % input == 0) { // Multiple
-            printf("%d is a multiple of the key\n", input);
+            printf("The key is a multiple of %d\n", input);
         }
         life--;
     }
