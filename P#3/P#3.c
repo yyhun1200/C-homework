@@ -5,13 +5,17 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define BOARDROW 6
+
 void print_board(char array[][7], int num, int turn, int win);
 int check_board(char array[][7], int num, int row, int column, int updown, int side);
+int initialization(char array[][7], int num, char mark[], int num2);
 
 int main()
 {
   int count = 0;
-  int column, turn = 1;
+  int column, row, updown, side, turn = 1;
+
   char mark[4] = {'_', 'O', '@', 'X'};
   char board[6][7] = {
     {"_______"},
@@ -22,22 +26,29 @@ int main()
     {"_______"}
   };
 
-  while(true) {
-    print_board(board, 6, turn, 0);
-    scanf("%d", &column);
+  initialization(board, BOARDROW, mark, 4);
 
-    for(int i = 5; i >= 0; i--)
+  while(true) {
+    print_board(board, BOARDROW, turn, 0);
+    scanf("%d", &column);
+    column -= 1;
+    for(row = 5; row >= 0; row--)
     {
-      if(board[i][column-1] == mark[0]) {
-        board[i][column-1] = mark[turn];
-        for(int j = -1; j < 2; j++)
-        {
-          for(int k = -1; k < 2; k++)
-          {
-            count = check_board(board, 6, i, column-1, j, k); // count를 활용하여 승리조건 
+      if(board[row][column] == mark[0]) {
+        board[row][column] = mark[turn];
+
+        for(updown = -1; updown < 2; updown++) {
+          for(side = -1; side < 2; side++) {
+            count = check_board(board, BOARDROW, row, column, updown, side);
             if(count == 4) {
               print_board(board, 6, turn, 1);
               return 0;
+            } else if(count == 3) {
+              count = check_board(board, BOARDROW, row, column, -updown, -side);
+              if(count == 2) {
+                print_board(board, BOARDROW, turn, 1);
+                return 0;
+              }
             }
           }
         }
@@ -64,12 +75,33 @@ void print_board(char array[][7], int num, int turn, int win)
 int check_board(char array[][7], int num, int row, int column, int updown, int side)
 { 
   // 6 > row + updown > 0 || 7 > column + side > 0
-  if(row + updown < 0 || row+updown > 6 || column + side < 0 || column + side>7)
+  if(row + updown < 0 || row+updown > 6 || column + side < 0 || column + side>7) // 벽에 닿음
     return 1;
   else if(updown == 0 && side == 0)
     return 1;
   else if(array[row][column] == array[row+updown][column+side])
     return 1 + check_board(array, num, row+updown, column+side, updown, side);
-  else
+  else    
     return 1;
+}
+
+int initialization(char array[][7], int num, char mark[], int num2)
+{
+  int column = 0;
+  while(true)
+  {
+    printf("For initialization, add block: ");
+    scanf("%d", &column);
+    if(column == 0) {
+      printf("Game started.\n\n");
+      return 0;
+    }
+    for(int i = 5; i >= 0; i--)
+    {
+      if(array[i][column-1] == mark[0]) {
+        array[i][column-1] = mark[3];
+        break;
+      }
+    }
+  }
 }
