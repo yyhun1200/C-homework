@@ -9,13 +9,12 @@
 #define BOARDROW 6
 #define BOARDCOLUMN 7
 
-void print_board(char array[][7], int num, int turn, int win);
+void print_board(char array[][BOARDCOLUMN], int num, int turn, int win);
 int start_check(char array[][BOARDCOLUMN], int boardnum, int row, int column, int updown, int side);
-int check_start_point(char board[][7], int boardnum, int row, int column, int updown, int side, int *rowstart, int *columnstart);
+int check_start_point(char board[][BOARDCOLUMN], int boardnum, int row, int column, int updown, int side, int *rowstart, int *columnstart);
 int start_check_draw(char array[][BOARDCOLUMN], int boardnum, int row, int column, int updown, int side);
-void check_draw(char board[][7], int boardnum);
-int initialization(char array[][7], int num, char mark[], int num2);
-
+void check_draw(char board[][BOARDCOLUMN], int boardnum);
+int initialization(char array[][BOARDCOLUMN], int num, char mark[], int num2);
 
 int main()
 {
@@ -34,6 +33,7 @@ int main()
     {"_______"},
     {"_______"}
   };
+
   // 심판
   initialization(board, BOARDROW, mark, 4);
 
@@ -46,8 +46,7 @@ int main()
     for(row = BOARDROW-1; row >= 0; row--)
     {
       if(board[row][column] == mark[0]) {
-        board[row][column] = mark[turn];
-        
+        board[row][column] = mark[turn];        
         for(int updown = -1; updown <= 1; updown++) {
           for(int side = -1; side <= 1; side++) {
             if(updown == 0 && side == 0) 
@@ -67,10 +66,10 @@ int main()
   }
 }
 
-void print_board(char array[][7], int num, int turn, int win)
+void print_board(char array[][BOARDCOLUMN], int num, int turn, int win)
 {
   printf("  1   2   3   4   5   6   7\n");
-  for(int i = 0; i < 6; i++)
+  for(int i = 0; i < BOARDROW; i++)
   {
     printf("|_%c_|_%c_|_%c_|_%c_|_%c_|_%c_|_%c_|\n", array[i][0], array[i][1], array[i][2], array[i][3], array[i][4], array[i][5], array[i][6]);
   }
@@ -87,7 +86,7 @@ void print_board(char array[][7], int num, int turn, int win)
 
 int start_check(char array[][BOARDCOLUMN], int boardnum, int row, int column, int updown, int side)
 {
-  if(row + updown < 0 || row+updown >= 6 || column + side < 0 || column + side >= 7)
+  if(row + updown < 0 || row+updown >= BOARDROW || column + side < 0 || column + side >= BOARDCOLUMN)
     return 1;
   else if(updown == 0 && side == 0)
     return 1;
@@ -97,7 +96,7 @@ int start_check(char array[][BOARDCOLUMN], int boardnum, int row, int column, in
     return 1;
 }
 
-void check_draw(char board[][7], int boardnum)
+void check_draw(char board[][BOARDCOLUMN], int boardnum)
 {
   int max = 0;
   for(int row = 0; row < BOARDROW; row++)
@@ -113,7 +112,6 @@ void check_draw(char board[][7], int boardnum)
       }    
     }
   }
-  printf("%d\n",max);
   if(max < 4)
   {
     print_board(board, boardnum, 0, 2);
@@ -121,12 +119,11 @@ void check_draw(char board[][7], int boardnum)
   }
 }
 
-
 int start_check_draw(char array[][BOARDCOLUMN], int boardnum, int row, int column, int updown, int side)
 {  
     if(array[row][column] == 'X')
       return 0;
-    else if(row + updown < 0 || row+updown >= 6 || column + side < 0 || column + side >= 7)
+    else if(row + updown < 0 || row+updown >= BOARDROW || column + side < 0 || column + side >= BOARDCOLUMN)
       return 1;
     else if(updown == 0 && side == 0)
       return 1;
@@ -136,10 +133,10 @@ int start_check_draw(char array[][BOARDCOLUMN], int boardnum, int row, int colum
       return 1;
 }
 
-int check_start_point(char board[][7], int boardnum, int row, int column, int updown, int side, int *rowstart, int *columnstart)
+int check_start_point(char board[][BOARDCOLUMN], int boardnum, int row, int column, int updown, int side, int *rowstart, int *columnstart)
 { 
   int count = 0;
-  if(row - updown >= 6 || row - updown < 0 || column - side < 0 || column - side >= 7)
+  if(row - updown >= BOARDROW || row - updown < 0 || column - side < 0 || column - side >= BOARDCOLUMN)
   {
     *rowstart = row;
     *columnstart = column; 
@@ -156,7 +153,7 @@ int check_start_point(char board[][7], int boardnum, int row, int column, int up
   }
 }
 
-int initialization(char array[][7], int num, char mark[], int num2)
+int initialization(char array[][BOARDCOLUMN], int num, char mark[], int num2)
 {
   int column = 0;
   while(true)
