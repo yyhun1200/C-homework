@@ -1,11 +1,13 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
-# define BLOCK_NUM 14
-# define BLOCK_ROW 3
-# define BLOCK_COLUMN 3
+#define BLOCK_NUM 14
+#define BLOCK_ROW 3
+#define BLOCK_COLUMN 3
+#define BOARD_SIZE 9
 
+// Block
 void makePlayerBlock(int block[][3], int num, char playerBlock[][3], int num1, int turn)
 {
   for(int row = 0; row < 3; row++){
@@ -23,7 +25,8 @@ void makePlayerBlock(int block[][3], int num, char playerBlock[][3], int num1, i
   }
 };
 
-void printBlock(char playerBlock[][3], int num) {
+void printBlock(char playerBlock[][3], int num, int turn) {
+  printf("\nP%d's block:\n", turn);
   printf(" _ _ _ \n");
   for(int i = 0; i< 3; i++){
     printf("|");
@@ -32,9 +35,10 @@ void printBlock(char playerBlock[][3], int num) {
     }
     printf("\n");
   }
+  printf("\nPut Your block (r c) or Rotate (0): ");
 };
 
-void randomBlock(char playerBlock[][3], int num, int turn) {
+void makeBlock(char playerBlock[][3], int num, int turn) {
   srand((unsigned int) time(NULL));
   int random = rand() % 14 + 1;
   switch(random) {
@@ -47,7 +51,6 @@ void randomBlock(char playerBlock[][3], int num, int turn) {
         makePlayerBlock(block, 3, playerBlock, 3, turn);
       break;
     }
-
     case 2:
     {
       int block[BLOCK_ROW][BLOCK_COLUMN] = {
@@ -58,7 +61,6 @@ void randomBlock(char playerBlock[][3], int num, int turn) {
 
       break;
     }
-
     case 3:
     {
       int block[BLOCK_ROW][BLOCK_COLUMN] = {
@@ -77,7 +79,6 @@ void randomBlock(char playerBlock[][3], int num, int turn) {
         makePlayerBlock(block, 3, playerBlock, 3, turn);
       break;
     }
-
     case 5:
     {
       int block[BLOCK_ROW][BLOCK_COLUMN] = {
@@ -87,7 +88,6 @@ void randomBlock(char playerBlock[][3], int num, int turn) {
         makePlayerBlock(block, 3, playerBlock, 3, turn);
       break;
     }
-
     case 6:
     {
       int block[BLOCK_ROW][BLOCK_COLUMN] = {
@@ -106,7 +106,6 @@ void randomBlock(char playerBlock[][3], int num, int turn) {
         makePlayerBlock(block, 3, playerBlock, 3, turn);
       break;
     }
-
     case 8:
     {
       int block[BLOCK_ROW][BLOCK_COLUMN] = {
@@ -116,7 +115,6 @@ void randomBlock(char playerBlock[][3], int num, int turn) {
         makePlayerBlock(block, 3, playerBlock, 3, turn);
       break;
     }
-
     case 9:
     {
       int block[BLOCK_ROW][BLOCK_COLUMN] = {
@@ -135,7 +133,6 @@ void randomBlock(char playerBlock[][3], int num, int turn) {
         makePlayerBlock(block, 3, playerBlock, 3, turn);
       break;
     }
-
     case 11:
     {
       int block[BLOCK_ROW][BLOCK_COLUMN] = {
@@ -145,7 +142,6 @@ void randomBlock(char playerBlock[][3], int num, int turn) {
         makePlayerBlock(block, 3, playerBlock, 3, turn);
       break;
     }
-
     case 12:
     {
       int block[BLOCK_ROW][BLOCK_COLUMN] = {
@@ -155,7 +151,6 @@ void randomBlock(char playerBlock[][3], int num, int turn) {
         makePlayerBlock(block, 3, playerBlock, 3, turn);
       break;
     }
-
     case 13:
     {
       int block[BLOCK_ROW][BLOCK_COLUMN] = {
@@ -165,7 +160,6 @@ void randomBlock(char playerBlock[][3], int num, int turn) {
         makePlayerBlock(block, 3, playerBlock, 3, turn);
       break;
     }
-
     case 14:
     {
       int block[BLOCK_ROW][BLOCK_COLUMN] = {
@@ -176,7 +170,6 @@ void randomBlock(char playerBlock[][3], int num, int turn) {
       break;
     }
   }
-
 };
 
 void rotate(char block[][3], int num) {
@@ -196,20 +189,42 @@ void rotate(char block[][3], int num) {
   }
 };
 
+// Board
+void printBoard(char board[][BOARD_SIZE], int num) {
+  printf("   1 2 3 4 5 6 7 8 9\n");
+  printf("   _ _ _ _ _ _ _ _ _\n");
+  for(int row = 0; row < 9; row++){
+    printf("%d |", row+1);
+    for(int column = 0; column < 9; column++)
+    {
+      printf("%c|", board[row][column]);
+    }
+    printf("\n");
+  }
+}
+
 int main() {
+  char board[9][9] = {
+      "_________",
+      "_________",
+      "_________",
+      "_________",
+      "_________",
+      "_________",
+      "_________",
+      "_________",
+      "_________"
+  };
   char playerBlock[3][3] = {};
-  int turn = 1;
+  int turn = 1;  
 
-  randomBlock(playerBlock, 3, turn);
+  printBoard(board, BOARD_SIZE);
+  makeBlock(playerBlock, BLOCK_ROW, turn);
+  printBlock(playerBlock, BLOCK_ROW, turn);
 
-  printBlock(playerBlock, 3);
-  printf("\n");
+  // user input
 
-  rotate(playerBlock, 3);
-  printf("\n");
-  printBlock(playerBlock, 3);
+  // position
 
-  rotate(playerBlock, 3);
-  printf("\n");
-  printBlock(playerBlock, 3);
+  turn = turn == 1? 2 : 1;
 }
