@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
 
 #define BLOCK_NUM 14
 #define BLOCK_ROW 3
@@ -58,7 +59,6 @@ void makeBlock(char playerBlock[][3], int num, int turn) {
         {1,0,0},
         {0,0,0}};
         makePlayerBlock(block, 3, playerBlock, 3, turn);
-
       break;
     }
     case 3:
@@ -203,6 +203,46 @@ void printBoard(char board[][BOARD_SIZE], int num) {
   }
 }
 
+int userInput(int *rowPointer, int *columnPointer) {
+  scanf("%d", rowPointer);
+  if(*rowPointer == 0) //rotate
+  {
+    //
+    return 1;
+  }
+  else // position
+  {
+    scanf(" %d", columnPointer);
+    // 오류처리 요망(인자 3개 받을때)
+    return 0;
+  }
+}
+
+void position(char board[][BOARD_SIZE], int num, char playerBlock[][BLOCK_COLUMN], int num1, int row, int column) {
+  int error = 0;
+  row -= 1;
+  column -= 1;
+
+  for(int i = 0; i < 3; i++) {
+    for(int j = 0; j < 3; j++) {      
+      if(board[row+i][column+j] != '_' && playerBlock[i][j] != '_'){
+        error = error + 1;
+      }
+    }
+  }
+
+  if(error == 0) {
+    for(int i = 0; i < 3; i++) {
+      for(int j = 0; j < 3; j++) {
+        if(playerBlock[i][j] != '_')
+        {
+          board[row+i][column+j] = playerBlock[i][j];
+        }
+      }
+    }
+  }
+}
+
 int main() {
   char board[9][9] = {
       "_________",
@@ -215,16 +255,31 @@ int main() {
       "_________",
       "_________"
   };
+  int turn = 1;
+  int row, column;
+  int command = 0;
+
   char playerBlock[3][3] = {};
-  int turn = 1;  
 
-  printBoard(board, BOARD_SIZE);
-  makeBlock(playerBlock, BLOCK_ROW, turn);
-  printBlock(playerBlock, BLOCK_ROW, turn);
+  bool gameFinish = false;
 
-  // user input
+  while(!gameFinish) {
+    printBoard(board, BOARD_SIZE);
+    makeBlock(playerBlock, BLOCK_ROW, turn);
+    printBlock(playerBlock, BLOCK_ROW, turn);
+    command = userInput(&row, &column);
 
-  // position
-
-  turn = turn == 1? 2 : 1;
+    // user input
+    while(command)
+    {
+      rotate(playerBlock, BLOCK_ROW);
+      printBlock(playerBlock, BLOCK_ROW, turn);
+      command = userInput(&row, &column);
+    }
+    // position
+    position(board, BOARD_SIZE, playerBlock, BLOCK_ROW, row, column);
+    // finish turn
+    turn = turn == 1? 2 : 1;
+    // win or lose
+  }  
 }
