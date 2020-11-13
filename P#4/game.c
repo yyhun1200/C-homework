@@ -214,11 +214,11 @@ int userInput(int *rowPointer, int *columnPointer) {
   {
     scanf(" %d", columnPointer);
     // 오류처리 요망(인자 3개 받을때)
-    return 0;
+    return 2;
   }
 }
 
-void position(char board[][BOARD_SIZE], int num, char playerBlock[][BLOCK_COLUMN], int num1, int row, int column) {
+int position(char board[][BOARD_SIZE], int num, char playerBlock[][BLOCK_COLUMN], int num1, int row, int column, int turn) {
   int error = 0;
   row -= 1;
   column -= 1;
@@ -240,6 +240,10 @@ void position(char board[][BOARD_SIZE], int num, char playerBlock[][BLOCK_COLUMN
         }
       }
     }
+    return 2;
+  } else {
+    printf("P%d is not able to put the block into (%d,%d).", turn, row+1, column+1);
+    return 3;
   }
 }
 
@@ -257,29 +261,32 @@ int main() {
   };
   int turn = 1;
   int row, column;
-  int command = 0;
-
   char playerBlock[3][3] = {};
 
   bool gameFinish = false;
 
   while(!gameFinish) {
+    int command = 0;
+
     printBoard(board, BOARD_SIZE);
     makeBlock(playerBlock, BLOCK_ROW, turn);
     printBlock(playerBlock, BLOCK_ROW, turn);
-    command = userInput(&row, &column);
 
-    // user input
-    while(command)
-    {
-      rotate(playerBlock, BLOCK_ROW);
-      printBlock(playerBlock, BLOCK_ROW, turn);
+    // win or lose
+
+    while(command != 2) {
       command = userInput(&row, &column);
+      if(command == 1) { // rotate      
+        rotate(playerBlock, BLOCK_ROW);
+        printBlock(playerBlock, BLOCK_ROW, turn);
+      } else if(command == 2) { // position
+        command = position(board, BOARD_SIZE, playerBlock, BLOCK_ROW, row, column, turn);
+        printf("\n");
+        printBlock(playerBlock, BLOCK_ROW, turn);
+      }
     }
-    // position
-    position(board, BOARD_SIZE, playerBlock, BLOCK_ROW, row, column);
+
     // finish turn
     turn = turn == 1? 2 : 1;
-    // win or lose
-  }  
+  }
 }
