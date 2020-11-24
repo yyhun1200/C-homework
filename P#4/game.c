@@ -10,24 +10,66 @@
 #define BOARD_COLUMN 9
 
 // Block
-void makePlayerBlock(int block[][BLOCK_COLUMN], int num, char playerBlock[][BLOCK_COLUMN], int num1, int turn)
+void printBlock(char playerBlock[][BLOCK_COLUMN], int num, int turn, int mode);
+void makeBlock(char playerBlock[][BLOCK_COLUMN], int num, int turn);
+void makePlayerBlock(int block[][BLOCK_COLUMN], int num, char playerBlock[][BLOCK_COLUMN], int num1, int turn);
+void rotate(char block[][BLOCK_COLUMN], int num);
+// Board
+void printBoard(char board[][BOARD_COLUMN], int num); 
+int userInput(int *rowPointer, int *columnPointer);
+// game
+int position(char board[][BOARD_COLUMN], int num, char playerBlock[][BLOCK_COLUMN], int num1, int row, int column, int turn);
+int isWin(char board[][BOARD_COLUMN], int num, char playerBlock[][BLOCK_COLUMN], int num1);
+
+// main
+int main() 
 {
-  for(int row = 0; row < BLOCK_ROW; row++){
-    for(int column = 0; column < BLOCK_COLUMN; column++){
-      if(block[row][column] == 0){
-        playerBlock[row][column] = '_';
-      } else if(block[row][column] == 1) {
-        if(turn == 1) {
-          playerBlock[row][column] = 'O';
-        } else if(turn == 2) {
-          playerBlock[row][column] = '@';
+  char board[BOARD_ROW][BOARD_COLUMN] = {
+      "_________",
+      "_________",
+      "_________",
+      "_________",
+      "_________",
+      "_________",
+      "_________",
+      "_________",
+      "_________"
+  };
+  int turn = 1;
+  int row, column;
+  char playerBlock[BLOCK_ROW][BLOCK_COLUMN] = {};
+
+  while(true) {    
+    int command = 0;
+    printBoard(board, BOARD_ROW);
+    makeBlock(playerBlock, BLOCK_ROW, turn);   
+    // win or lose
+    int mode = isWin(board, BOARD_ROW, playerBlock, BLOCK_ROW);
+    printBlock(playerBlock, BLOCK_ROW, turn, mode);
+
+    while(command != 2) {
+      command = userInput(&row, &column);
+      if(command == 1) { 
+        // rotate block
+        rotate(playerBlock, BLOCK_ROW);
+        printBlock(playerBlock, BLOCK_ROW, turn, 0);
+      } else if(command == 2) { 
+        // position block
+        command = position(board, BOARD_ROW, playerBlock, BLOCK_ROW, row, column, turn);
+        printf("\n");
+        if(command == 3) {
+          printBlock(playerBlock, BLOCK_ROW, turn, 0);
         }
       }
     }
+    // finish turn
+    turn = turn == 1? 2 : 1;
   }
-};
+}
 
-void printBlock(char playerBlock[][BLOCK_COLUMN], int num, int turn, int mode) {
+// Block
+void printBlock(char playerBlock[][BLOCK_COLUMN], int num, int turn, int mode) 
+{
   printf("\nP%d's block:\n", turn);
   printf(" _ _ _ \n");
   for(int i = 0; i < BLOCK_ROW; i++){
@@ -37,15 +79,16 @@ void printBlock(char playerBlock[][BLOCK_COLUMN], int num, int turn, int mode) {
     }
     printf("\n");
   }
-  if(mode == 1) {
-    printf("P1 fails to put the block. P2 wins!");
+  if(mode == 1) {    
+    printf("\nP1 fails to put the block. P2 wins!");
     exit(0);
   } else {
     printf("\nPut Your block (r c) or Rotate (0): ");
   }
 };
 
-void makeBlock(char playerBlock[][BLOCK_COLUMN], int num, int turn) {
+void makeBlock(char playerBlock[][BLOCK_COLUMN], int num, int turn) 
+{
   srand((unsigned int) time(NULL));
   int random = rand() % 14 + 1;
   switch(random) {
@@ -178,7 +221,25 @@ void makeBlock(char playerBlock[][BLOCK_COLUMN], int num, int turn) {
   }
 };
 
-void rotate(char block[][BLOCK_COLUMN], int num) {
+void makePlayerBlock(int block[][BLOCK_COLUMN], int num, char playerBlock[][BLOCK_COLUMN], int num1, int turn)
+{
+  for(int row = 0; row < BLOCK_ROW; row++){
+    for(int column = 0; column < BLOCK_COLUMN; column++){
+      if(block[row][column] == 0){
+        playerBlock[row][column] = '_';
+      } else if(block[row][column] == 1) {
+        if(turn == 1) {
+          playerBlock[row][column] = 'O';
+        } else if(turn == 2) {
+          playerBlock[row][column] = '@';
+        }
+      }
+    }
+  }
+};
+
+void rotate(char block[][BLOCK_COLUMN], int num) 
+{
   //copy
   char copyBlock[3][3];
   for(int row = 0; row < BLOCK_ROW; row++){
@@ -196,7 +257,8 @@ void rotate(char block[][BLOCK_COLUMN], int num) {
 };
 
 // Board
-void printBoard(char board[][BOARD_COLUMN], int num) {
+void printBoard(char board[][BOARD_COLUMN], int num) 
+{
   printf("   1 2 3 4 5 6 7 8 9\n");
   printf("   _ _ _ _ _ _ _ _ _\n");
   for(int row = 0; row < BOARD_ROW; row++){
@@ -209,7 +271,8 @@ void printBoard(char board[][BOARD_COLUMN], int num) {
   }
 }
 
-int userInput(int *rowPointer, int *columnPointer) {
+int userInput(int *rowPointer, int *columnPointer) 
+{
   scanf("%d", rowPointer);
   if(*rowPointer == 0) //rotate
   {
@@ -224,7 +287,8 @@ int userInput(int *rowPointer, int *columnPointer) {
 }
 
 // game
-int position(char board[][BOARD_COLUMN], int num, char playerBlock[][BLOCK_COLUMN], int num1, int row, int column, int turn) {
+int position(char board[][BOARD_COLUMN], int num, char playerBlock[][BLOCK_COLUMN], int num1, int row, int column, int turn) 
+{
   int error = 0;
   row -= 1;
   column -= 1;
@@ -253,7 +317,8 @@ int position(char board[][BOARD_COLUMN], int num, char playerBlock[][BLOCK_COLUM
   }
 }
 
-int isWin(char board[][BOARD_COLUMN], int num, char playerBlock[][BLOCK_COLUMN], int num1) {
+int isWin(char board[][BOARD_COLUMN], int num, char playerBlock[][BLOCK_COLUMN], int num1) 
+{
   int playerEmptyCount = 0;
   int boardStartRow, boardStartColumn;
   int count = 0;
@@ -283,7 +348,7 @@ int isWin(char board[][BOARD_COLUMN], int num, char playerBlock[][BLOCK_COLUMN],
         for(int row = 0; row < BLOCK_ROW; row++) {
           for(int column = 0; column < BLOCK_COLUMN; column++) {
             if(copyBlock[row][column] != '_' && boardSlice[row][column] == '_') {
-              count++; // 블록이 들어갈 수 있음 이게 블록크기에서 empty를 뺀 수가 나오면 들어갈 수 있다.
+              count++;
             }
           }
         }
@@ -301,50 +366,3 @@ int isWin(char board[][BOARD_COLUMN], int num, char playerBlock[][BLOCK_COLUMN],
   return 0;
 }
 
-// main
-int main() {
-  char board[BOARD_ROW][BOARD_COLUMN] = {
-      "_________",
-      "_________",
-      "_________",
-      "_________",
-      "_________",
-      "_________",
-      "_________",
-      "_________",
-      "_________"
-  };
-  int turn = 1;
-  int row, column;
-  char playerBlock[BLOCK_ROW][BLOCK_COLUMN] = {};
-
-  while(true) {    
-    int command = 0;
-    printBoard(board, BOARD_ROW);
-    makeBlock(playerBlock, BLOCK_ROW, turn);    
-
-    // win or lose
-    int mode = isWin(board, BOARD_ROW, playerBlock, BLOCK_ROW);
-    printBlock(playerBlock, BLOCK_ROW, turn, mode);
-
-
-    while(command != 2) {
-      command = userInput(&row, &column);
-      if(command == 1) { 
-        // rotate block
-        rotate(playerBlock, BLOCK_ROW);
-        printBlock(playerBlock, BLOCK_ROW, turn, 0);
-      } else if(command == 2) { 
-        // position block
-        command = position(board, BOARD_ROW, playerBlock, BLOCK_ROW, row, column, turn);
-        printf("\n");
-        if(command == 3) {
-          printBlock(playerBlock, BLOCK_ROW, turn, 0);
-        }
-      }
-    }
-
-    // finish turn
-    turn = turn == 1? 2 : 1;
-  }
-}
