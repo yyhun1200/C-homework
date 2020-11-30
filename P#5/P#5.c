@@ -144,7 +144,7 @@ void initCanvas(char array[][CANVAS_C], int num) {
 void makeLine(struct figure data, char array[][CANVAS_C], int arrayRow) {
   // r이랑 c값 정리
   float m = (data.p2_r - data.p1_r) / (data.p2_c - data.p1_c);
-  int b = -m*data.p1_c + data.p1_r;
+  int n = -m*data.p1_c + data.p1_r;
   int maxR = data.p1_r > data.p2_r? data.p1_r: data.p2_r;
   int minR = data.p1_r < data.p2_r? data.p1_r: data.p2_r;
   int maxC = data.p1_c > data.p2_c? data.p1_c: data.p2_c;
@@ -153,24 +153,13 @@ void makeLine(struct figure data, char array[][CANVAS_C], int arrayRow) {
   for(int indexR = minR; indexR <= maxR; indexR++) {
     for(int indexC = minC; indexC <= maxC; indexC++) {
       // indexR <= m*indexC + b && indexR >= m*indexC + b
-      if(indexR-1 <= m*indexC + b && indexR > m*indexC + b) {
+      if(indexR <= m*(indexC) + n && indexR+1 > m*(indexC) + n) {
         array[indexR][indexC] = '*';
       }
     }
   }
 }
-struct figure alignCoordinate(struct figure data) {
-  int temp;
-  if(data.p1_c > data.p2_c) {
-    temp = data.p1_c;
-    data.p1_c = data.p2_c;
-    data.p2_c = temp;
-    temp = data.p1_r;
-    data.p1_r = data.p2_r;
-    data.p2_r = temp;
-  }
-  return data;
-}
+
 void exportFigure(struct figure database[], int num, int max) {
   char canvas[CANVAS_R][CANVAS_C];
   initCanvas(canvas, CANVAS_R);
