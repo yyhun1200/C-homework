@@ -1,4 +1,6 @@
 #include<stdio.h>
+#include<math.h>
+
 #define NONE -1
 #define DATASIZE 100
 #define CANVAS_R 200
@@ -11,7 +13,7 @@ struct figure {
   int name;
   int p1_r;
   int p1_c;
-  int p2_r; 
+  int p2_r;
   int p2_c;
   int r1;
 };
@@ -59,13 +61,14 @@ struct figure addFigure() {
       printf("Enter the (r,c) coordinate of P1: ");
       scanf(" %d %d", &new.p1_r, &new.p1_c);
       printf("Enter the R1: ");
-      scanf(" %d", &new.r1);   
+      scanf(" %d", &new.r1);
       printf("Circle (id: %d) with the center (%d,%d) and the radius (%d) is added.\n\n", new.id, new.p1_r, new.p1_c, new.r1);
       new.p2_r = NONE;
       new.p2_c = NONE;
       return new;
   }
-};
+  return new;
+}
 
 int removeFigure(struct figure database[], int num) {
   int removeId;
@@ -81,12 +84,12 @@ int removeFigure(struct figure database[], int num) {
     case 3:
       printf("Circle (id: %d) with the center (%d,%d) and the radius (%d) is removed\n\n", database[removeId].id, database[removeId].p1_r, database[removeId].p1_c, database[removeId].r1);
       break;
-  }  
+  }
   database[removeId].id = NONE;
   return removeId;
 };
 
-struct figure adjustFigure(struct figure database[], int num) {
+void adjustFigure(struct figure database[], int num) {
   int id;
   printf("Enter the figure id: ");
   scanf(" %d", &id);
@@ -113,7 +116,7 @@ struct figure adjustFigure(struct figure database[], int num) {
       printf("Circle (id: %d) with the center (%d,%d) and the radius (%d) is added.\n\n", database[id].id, database[id].p1_r, database[id].p1_c, database[id].r1);
       break;
   }
-};
+}
 
 void printFigure(struct figure database[], int num, int max) {
   for(int i = 0; i <= max; i++) {
@@ -143,32 +146,146 @@ void initCanvas(char array[][CANVAS_C], int num) {
 
 void makeLine(struct figure data, char array[][CANVAS_C], int arrayRow) {
   // r이랑 c값 정리
-  float m = (data.p2_r - data.p1_r) / (data.p2_c - data.p1_c);
+  float m = (float)(data.p2_r - data.p1_r) / (data.p2_c - data.p1_c);
+  m = fabs(m);
   int n = -m*data.p1_c + data.p1_r;
-  int maxR = data.p1_r > data.p2_r? data.p1_r: data.p2_r;
-  int minR = data.p1_r < data.p2_r? data.p1_r: data.p2_r;
-  int maxC = data.p1_c > data.p2_c? data.p1_c: data.p2_c;
-  int minC = data.p1_c < data.p2_c? data.p1_c: data.p2_c;
-
-  for(int indexR = minR; indexR <= maxR; indexR++) {
-    for(int indexC = minC; indexC <= maxC; indexC++) {
-      // indexR <= m*indexC + b && indexR >= m*indexC + b
-      if(indexR <= m*(indexC) + n && indexR+1 > m*(indexC) + n) {
-        array[indexR][indexC] = '*';
+  array[data.p1_r][data.p1_c] = '*';
+  int delC = abs(data.p1_c - data.p2_c);
+  int delR = abs(data.p1_r - data.p2_r);
+  if(delC == 0 ){
+    for(int i = 0; i < delR; i ++) {
+      data.p1_r++;
+      array[data.p1_r][data.p1_c] = '*';
+    }
+  }
+  if(m > 1) {
+    int p = 2 * delC - delR;
+    for(int i = 0; i < delC; i++) {
+      if(p < 0) {
+        data.p1_r++;
+        array[data.p1_r][data.p1_c] = '*';
+        p = p+(2*delC);
+      } else {
+        data.p1_c++;
+        data.p1_r++;
+        array[data.p1_r][data.p1_c] = '*';
+        p = p+(2*delC) - (2*delR);
+      }
+    }
+  } else if(m < 1) {
+    int p = 2 * delR - delC;
+    for(int i = 0; i< delC; i++) {
+      if(p < 0) {
+        data.p1_c++;
+        array[data.p1_r][data.p1_c] = '*';
+        p = p + (2 * delR);
+      } else {
+        data.p1_c++;
+        data.p1_r++;
+        array[data.p1_r][data.p1_c] = '*';
+        p = p + (2 * delR) - (2 * delC);
       }
     }
   }
 }
 
-void exportFigure(struct figure database[], int num, int max) {
-  char canvas[CANVAS_R][CANVAS_C];
-  initCanvas(canvas, CANVAS_R);
+void makeRectangle(struct figure data, char array[][CANVAS_C], int arrayRow) {
+  struct figure line1, line2, line3, line4;  
+  // point1 -> point 2
+  line1.p1_c = data.p1_c;
+  line1.p1_r = data.p1_r;
+  line1.p2_c = data.p2_c;
+  line1.p2_r = data.p1_r;
+  // point 1 -> point 3
+  line2.p1_c = data.p1_c;
+  line2.p1_r = data.p1_r;
+  line2.p2_c = data.p1_c;
+  line2.p2_r = data.p2_r;
+  // point 2 -> point4
+  line3.p1_c = data.p2_c;
+  line3.p1_r = data.p1_r;
+  line3.p2_c = data.p2_c;
+  line3.p2_r = data.p2_r;
+  // point 3 -> point4
+  line4.p1_c = data.p1_c;
+  line4.p1_r = data.p2_r;
+  line4.p2_c = data.p2_c;
+  line4.p2_r = data.p2_r;
+  makeLine(line1, array, CANVAS_R);
+  makeLine(line2, array, CANVAS_R);
+  makeLine(line3, array, CANVAS_R);
+  makeLine(line4, array, CANVAS_R);
+}
 
-  for(int dataIndex = 0; dataIndex <= max; dataIndex++) {
-    struct figure data = database[dataIndex];  
-    if(data.id == NONE) continue;
-    makeLine(data, canvas, CANVAS_R);
+void makeCircle(struct figure data, char array[][CANVAS_C], int arrayRow) {
+  int c_centre, r_centre, radius;
+  c_centre = data.p1_c;
+  r_centre = data.p1_r;
+  radius = data.r1;
+  int c = radius, r = 0;  
+
+  array[r + r_centre][c + r_centre] = '*';
+  if (radius > 0)
+  {
+    array[-r + r_centre][c + c_centre] = '*';
+    array[c + r_centre][r + c_centre] = '*';
+    array[c + r_centre][-r + c_centre] = '*';
   }
+
+  int P = 1 - radius;
+    while (c > r)
+    {
+        r++;
+        // Mid-point is inside or on the perimeter
+        if (P <= 0)
+            P = P + 2*c + 1;
+        // Mid-point is outside the perimeter
+        else
+        {
+            c--;
+            P = P + 2*r - 2*c + 1;
+        }
+
+        // All the perimeter points have already been printed
+        if (c < r) break;
+        // Printing the generated point and its reflection
+        // in the other octants after translation        
+        array[r + r_centre][c + c_centre] = '*';        
+        array[r + r_centre][-c + c_centre] = '*';        
+        array[-r + r_centre][c + c_centre] = '*';        
+        array[-r + r_centre][-c + c_centre] = '*';
+
+        // If the generated point is on the line x = y then
+        // the perimeter points have already been printed
+        if (c != r)
+        {
+          array[c + r_centre][r + c_centre] = '*';
+          array[c + r_centre][-r + c_centre] = '*';
+          array[-c + r_centre][r + c_centre] = '*';
+          array[-c + r_centre][-r + c_centre] = '*';
+        }
+    }
+}
+
+void exportFigure(struct figure database[], int num, int max) {
+  char canvas[CANVAS_R][CANVAS_C]; // 전역으로 변경하기
+  initCanvas(canvas, CANVAS_R);
+  for(int dataIndex = 0; dataIndex <= max; dataIndex++) {
+    struct figure data = database[dataIndex];
+    if(data.id == NONE) continue;
+    switch(data.name) {
+      case 1:
+        makeLine(data, canvas, CANVAS_R);
+        break;
+      case 2:
+        makeRectangle(data, canvas, CANVAS_R);
+        break;
+      case 3:
+        makeCircle(data, canvas, CANVAS_R);
+        break;
+    }
+  }
+  // file
   for(int i =0; i< 20; i++) {
     for(int j =0; j < 20; j++){
       printf("%c",canvas[i][j]);
@@ -200,7 +317,7 @@ int main() {
             if(data[i].id != NONE) {
               maxId = i;
               break;
-            }            
+            }
           }
         }
         break;
@@ -216,7 +333,9 @@ int main() {
       default:
       return 0;
     }
-    
 
-  }  
+
+  }
 }
+
+
