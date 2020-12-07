@@ -146,19 +146,42 @@ void initCanvas() {
   }
 }
 
-void makeLine(struct figure data) {  
-  // r이랑 c값 정리  
+struct figure sortData(struct figure data) {
+  if(data.p1_c > data.p2_c) {
+    int temp;
+    temp = data.p1_c;
+    data.p1_c = data.p2_c;
+    data.p2_c = temp;
+    temp = data.p1_r;
+    data.p1_r = data.p2_r;
+    data.p2_r = temp;  
+  }
+  return data;
+}
+
+void makeLine(struct figure data) {
+  // 최댓값, 최솟값 기준 정리 c기준
+  data = sortData(data);  
+
   float m = (float)(data.p2_r - data.p1_r) / (data.p2_c - data.p1_c);
-  m = fabs(m);
   int n = -m*data.p1_c + data.p1_r;
   canvas[data.p1_r][data.p1_c] = '*';
+
   int delC = abs(data.p1_c - data.p2_c);
   int delR = abs(data.p1_r - data.p2_r);
-  if(delC == 0 ){
+  if(delC == 0 ) { // vertical
     for(int i = 0; i < delR; i ++) {
       data.p1_r++;
       canvas[data.p1_r][data.p1_c] = '*';
     }
+    return;
+  }
+  if(delR == 0 ){ // horizon
+    for(int i = 0; i < delC; i ++) {
+      data.p1_c++;
+      canvas[data.p1_r][data.p1_c] = '*';
+    }
+    return;
   }
   if(m >= 1) {
     int p = 2 * delC - delR;
@@ -174,7 +197,7 @@ void makeLine(struct figure data) {
         p = p+(2*delC) - (2*delR);
       }
     }
-  } else if(m < 1) {
+  } else if(0 < m && m < 1) {
     int p = 2 * delR - delC;
     for(int i = 0; i< delC; i++) {
       if(p < 0) {
@@ -188,11 +211,39 @@ void makeLine(struct figure data) {
         p = p + (2 * delR) - (2 * delC);
       }
     }
+  } else if(-1 <= m && m < 0) {
+    int p = 2 * delR - delC;
+    for(int i = 0; i< delC; i++) {
+      if(p < 0) {
+        data.p1_c++;
+        canvas[data.p1_r][data.p1_c] = '*';
+        p = p + (2 * delR);
+      } else {
+        data.p1_c++;
+        data.p1_r--;
+        canvas[data.p1_r][data.p1_c] = '*';
+        p = p + (2 * delR) - (2 * delC);
+      }
+    }
+  } else if(m < -1) {
+    int p = 2 * delC - delR;
+    for(int i = 0; i < delC; i++) {
+      if(p < 0) {
+        data.p1_r--;
+        canvas[data.p1_r][data.p1_c] = '*';
+        p = p+(2*delC);
+      } else {
+        data.p1_c++;
+        data.p1_r--;
+        canvas[data.p1_r][data.p1_c] = '*';
+        p = p+(2*delC) - (2*delR);
+      }
+    }
   }
 }
 
 void makeRectangle(struct figure data) {
-  struct figure line1, line2, line3, line4;  
+  struct figure line1, line2, line3, line4;
   // point1 -> point 2
   line1.p1_c = data.p1_c;
   line1.p1_r = data.p1_r;
@@ -226,60 +277,40 @@ void makeCircle(struct figure data) {
   radius = data.r1;
 
   int c = radius, r = 0;
+  // initialize circle
+  canvas[c + c_centre][r + r_centre] = '*';
+  if (radius > 0) {
+    canvas[ c + c_centre][-r + r_centre] = '*';
+    canvas[ r + c_centre][ c + r_centre] = '*';
+    canvas[-r + c_centre][-c + r_centre] = '*';
+    canvas[-c + c_centre][-r + r_centre] = '*';
+  }
 
-    // Printing the initial point on the axes
-    // after translation
+  int P = 1 - radius;
+  while (c > r)
+  {
+    r++;
+    if (P <= 0) {
+      P = P + 2*r + 1;
+    }
+    else {
+      c--;
+      P = P + 2*r - 2*c + 1;
+    }
+
+    if (c < r) break;
     canvas[c + c_centre][r + r_centre] = '*';
-
-    // When radius is zero only a single
-    // point will be printed
-    if (radius > 0)
-    {
-        canvas[c + c_centre][-r + r_centre] = '*';
-        canvas[r + c_centre][c + r_centre] = '*';
-        canvas[-r + c_centre][-c + r_centre] = '*';
-        canvas[-c + c_centre][-r + r_centre] = '*';
+    canvas[-c + c_centre][r + r_centre] = '*';
+    canvas[c + c_centre][-r + r_centre] = '*';
+    canvas[-c + c_centre][-r + r_centre] = '*';
+    
+    if (c != r) {
+    canvas[r + c_centre][c + r_centre] = '*';
+    canvas[-r + c_centre][c + r_centre] = '*';
+    canvas[r + c_centre][-c + r_centre] = '*';
+    canvas[-r + c_centre][-c + r_centre] = '*';
     }
-
-    // Initialising the value of P
-    int P = 1 - radius;
-    while (c > r)
-    {
-        r++;
-
-        // Mid-point is inside or on the perimeter
-        if (P <= 0)
-            P = P + 2*r + 1;
-
-        // Mid-point is outside the perimeter
-        else
-        {
-            c--;
-            P = P + 2*r - 2*c + 1;
-        }
-
-        // All the perimeter points have already been printed
-        if (c < r)
-            break;
-
-        // Printing the generated point and its reflection
-        // in the other octants after translation
-
-        canvas[c + c_centre][r + r_centre] = '*';
-        canvas[-c + c_centre][r + r_centre] = '*';
-        canvas[c + c_centre][-r + r_centre] = '*';
-        canvas[-c + c_centre][-r + r_centre] = '*';
-
-        // If the generated point is on the line x = y then
-        // the perimeter points have already been printed
-        if (c != r)
-        {
-            canvas[r + c_centre][c + r_centre] = '*';
-            canvas[-r + c_centre][c + r_centre] = '*';
-            canvas[r + c_centre][-c + r_centre] = '*';
-            canvas[-r + c_centre][-c + r_centre] = '*';
-        }
-    }
+  }
 }
 
 void makeFile() {
@@ -291,7 +322,8 @@ void makeFile() {
   }
   for(int r = 0; r < CANVAS_R; r++) {
     for(int c = 0; c < CANVAS_C; c++) {
-      fputc(canvas[r][c], txt);  
+      fputc(canvas[r][c], txt);
+      fputc(' ', txt);
     }
     fputc('\n', txt);
   }
@@ -313,7 +345,7 @@ void exportFigure(struct figure database[], int num, int max) {
       case 3:
         makeCircle(data);
         break;
-    }    
+    }
   }
   // file
   makeFile();
@@ -336,6 +368,8 @@ int main() {
     printf("Enter a command (1: Add, 2:Remove, 3: Ajdust, 4:Export, 5:Print, 0:Exit): ");
     scanf(" %d", &command);
     switch(command) {
+      case 0:
+        return 0;
       case 1:
         temp = addFigure();
         data[temp.id] = temp;
@@ -361,11 +395,7 @@ int main() {
       case 5:
         printFigure(data, DATASIZE, maxId);
         break;
-      default:
-      return 0;
     }
-
-
   }
 }
 
